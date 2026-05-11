@@ -7,13 +7,15 @@ class VoiceAssistant:
         recorder,
         speaker,
         whisper_engine,
-        ia_engine
+        ia_engine,
+        rag_engine
     ):
 
         self.recorder = recorder
         self.speaker = speaker
         self.whisper = whisper_engine
         self.ia = ia_engine
+        self.rag = rag_engine
 
         self.historial = [
             {
@@ -27,6 +29,12 @@ class VoiceAssistant:
                     "Eres una asistente inteligente de la Universidad de Colima, de la Facultad de Ingenieria Electromecanica (FIE)."
                     "Puedes responder cualquier pregunta, pero siempre debes de relacionar tus respuestas con la Universidad de Colima y la Facultad de Ingenieria Electromecanica (FIE)."
                     "Las carreras que se imparten en la Facultad de Ingenieria Electromecanica (FIE) son: Ingeniería de Software, Ingeniería en Mecatrónica, Ingeniería en Tecnologías Electrónicas, Ingeniero Mecánico Electricista, Maestría en Ingeniería Aplicada"
+                    "No utilices emojis en tus respuestas."
+                    "Hablas hacia los estudiantes, profesores y personal administrativo de la Facultad de Ingenieria Electromecanica (FIE)."
+                    "No digas que la información salio de un documento que te brindamos, pero si la información es del documento, haz énfasis en que es información actual y reciente."
+                    "Hablale al usuario como si le estuvieras hablando de frente, no como si le estuvieras hablando a través de una computadora."
+                    "Al usuario se le muestran las respuestas en voz, así que haz tus respuestas claras y fáciles de entender."
+                    "Tus creadores somos los alumnos Jose Angel Alvarez Carranza y Sandra Vannesa Rodriguez Arechiga."
                 )
             }
         ]
@@ -47,7 +55,7 @@ class VoiceAssistant:
         print("\nAsistente iniciado.\n")
 
         self.speaker.hablar(
-            "Hola, soy tu asistente virtual."
+            "Hola, estoy aqui para resolver tus dudas acerca de la facultad."
         )
 
         while True:
@@ -78,8 +86,11 @@ class VoiceAssistant:
                 "content": texto
             })
 
+            contexto = self.rag.search(texto)
+
             respuesta = self.ia.preguntar(
-                self.historial
+                self.historial,
+                contexto=contexto
             )
 
             print("\nIA:", respuesta)

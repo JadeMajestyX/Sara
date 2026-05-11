@@ -7,7 +7,7 @@ from audio.speaker import Speaker
 
 from ia.whisper_engine import WhisperEngine
 from ia.ollama_engine import OllamaEngine
-
+from rag.rag_engine import RAGEngine
 from core.assistant import VoiceAssistant
 
 
@@ -24,18 +24,22 @@ def main():
     )
 
     whisper_engine = WhisperEngine(
-        modelo=MODELO_WHISPER
+        modelo=MODELO_WHISPER,
+        device=WHISPER_DEVICE
     )
 
     ia_engine = OllamaEngine(
         modelo=MODELO_IA
     )
 
+    rag_engine = RAGEngine()
+
     assistant = VoiceAssistant(
         recorder=recorder,
         speaker=speaker,
         whisper_engine=whisper_engine,
-        ia_engine=ia_engine
+        ia_engine=ia_engine,
+        rag_engine=rag_engine
     )
 
     assistant.iniciar()
