@@ -21,12 +21,12 @@ class OllamaEngine:
                 {
                     "role": "system",
                     "content": (
-                        "Usa el siguiente contexto documental para responder preguntas. "
-                        "Prioriza la información actual y más reciente cuando sea posible.\n\n"
+                        "Usa el siguiente contexto como apoyo para responder. "
+                        "Prioriza la información actual y reciente cuando sea posible.\n\n"
                         f"{contexto}\n\n"
-                        "Si el contexto contiene la respuesta, usalo. "
-                        "Si el contexto no contiene la respuesta, puedes responder con tu conocimiento general. "
-                        "Siempre indica si la información viene del documento o de tu conocimiento."
+                        "Si el contexto contiene la respuesta, úsalo. "
+                        "Si el contexto no contiene la respuesta, responde de forma directa con lo que sí sabes o di que no lo sabes. "
+                        "No menciones documentos, búsquedas ni el origen de la información."
                     )
                 }
             )

@@ -1,5 +1,8 @@
 # core/assistant.py
 
+import re
+
+
 class VoiceAssistant:
 
     def __init__(
@@ -8,7 +11,8 @@ class VoiceAssistant:
         speaker,
         whisper_engine,
         ia_engine,
-        rag_engine
+        rag_engine,
+        on_finish=None
     ):
 
         self.recorder = recorder
@@ -16,25 +20,25 @@ class VoiceAssistant:
         self.whisper = whisper_engine
         self.ia = ia_engine
         self.rag = rag_engine
+        self.on_finish = on_finish
 
         self.historial = [
             {
                 "role": "system",
                 "content": (
-                    "Eres una asistente virtual en español."
-                    "Responde breve y claro."
-                    "Eres una asistente carismatico, amigable y servicial."
-                    "Debes de responder con información oficial y verificada."
-                    "No debes inventar información, si no sabes algo, di que no lo sabes."
-                    "Eres una asistente inteligente de la Universidad de Colima, de la Facultad de Ingenieria Electromecanica (FIE)."
-                    "Puedes responder cualquier pregunta, pero siempre debes de relacionar tus respuestas con la Universidad de Colima y la Facultad de Ingenieria Electromecanica (FIE)."
-                    "Las carreras que se imparten en la Facultad de Ingenieria Electromecanica (FIE) son: Ingeniería de Software, Ingeniería en Mecatrónica, Ingeniería en Tecnologías Electrónicas, Ingeniero Mecánico Electricista, Maestría en Ingeniería Aplicada"
-                    "No utilices emojis en tus respuestas."
-                    "Hablas hacia los estudiantes, profesores y personal administrativo de la Facultad de Ingenieria Electromecanica (FIE)."
-                    "No digas que la información salio de un documento que te brindamos, pero si la información es del documento, haz énfasis en que es información actual y reciente."
-                    "Hablale al usuario como si le estuvieras hablando de frente, no como si le estuvieras hablando a través de una computadora."
-                    "Al usuario se le muestran las respuestas en voz, así que haz tus respuestas claras y fáciles de entender."
-                    "Tus creadores somos los alumnos Jose Angel Alvarez Carranza y Sandra Vannesa Rodriguez Arechiga."
+                    "Eres una asistente virtual en español. "
+                    "Responde breve, claro y con tono amigable. "
+                    "No utilices emojis. "
+                    "No inventes información: si no sabes algo, dilo con honestidad. "
+                    "Habla de frente, como si estuvieras conversando con el usuario. "
+                    "Actúas como una secretaria/asistente administrativa: orientas, informas y apoyas en temas institucionales y de atención. "
+                    "No puedes enseñar programación ni responder solicitudes técnicas de código. "
+                    "Si te piden código o temas de programación, rechaza la solicitud de forma breve y redirige a temas de orientación académica o administrativa. "
+                    "Tus respuestas se escuchan por voz, así que deben ser fáciles de entender. "
+                    "Eres una asistente inteligente de la Universidad de Colima, de la Facultad de Ingeniería Electromecánica (FIE). "
+                    "Relaciona tus respuestas con la Universidad de Colima y la Facultad de Ingeniería Electromecánica (FIE) cuando sea pertinente. "
+                    "Las carreras que se imparten en la Facultad de Ingeniería Electromecánica (FIE) son: Ingeniería de Software, Ingeniería en Mecatrónica, Ingeniería en Tecnologías Electrónicas, Ingeniero Mecánico Electricista y Maestría en Ingeniería Aplicada. "
+                    "Tus creadores son los alumnos Jose Angel Alvarez Carranza y Sandra Vannesa Rodriguez Arechiga."
                 )
             }
         ]
@@ -50,54 +54,126 @@ class VoiceAssistant:
 
         return texto.lower() in comandos
 
+    def es_consulta_codigo(self, texto):
+
+        texto_normalizado = texto.lower()
+
+        patrones = [
+            r"\bc[oó]digo\b",
+            r"\bprogramaci[oó]n\b",
+            r"\bprogramar\b",
+            r"\bscript\b",
+            r"\balgoritmo\b",
+            r"\bjava\b",
+            r"\bpython\b",
+            r"\bc\+\+\b",
+            r"\bc#\b",
+            r"\bjavascript\b",
+            r"\bhtml\b",
+            r"\bcss\b",
+            r"\bsql\b",
+            r"\bapi\b",
+            r"\bfunci[oó]n\b",
+            r"\bclase\b",
+            r"\bdepurar\b",
+            r"\bcompilar\b",
+            r"\bhola mundo\b",
+            r"\bhello world\b"
+        ]
+
+        return any(re.search(patron, texto_normalizado) for patron in patrones)
+
     def iniciar(self):
 
-        print("\nAsistente iniciado.\n")
+        try:
+            print("\nAsistente iniciado.\n")
 
-        self.speaker.hablar(
-            "Hola, estoy aqui para resolver tus dudas acerca de la facultad."
-        )
+            audio_queue = __import__("queue").Queue()
+            stop_event = __import__("threading").Event()
 
-        while True:
-
-            audio_path = self.recorder.grabar()
-
-            texto = self.whisper.transcribir(audio_path)
-
-            if not texto:
-
-                print("No se detectó voz.")
-                continue
-
-            print("\nTú:", texto)
-
-            if self.es_comando_salida(texto):
-
-                despedida = "Hasta luego."
-
-                print("\nIA:", despedida)
-
-                self.speaker.hablar(despedida)
-
-                break
-
-            self.historial.append({
-                "role": "user",
-                "content": texto
-            })
-
-            contexto = self.rag.search(texto)
-
-            respuesta = self.ia.preguntar(
-                self.historial,
-                contexto=contexto
+            self.recorder.start_listening(
+                on_utterance=audio_queue.put,
+                on_speech_start=self.speaker.detener,
+                stop_event=stop_event
             )
 
-            print("\nIA:", respuesta)
+            self.speaker.hablar(
+                "Hola, estoy aqui para resolver tus dudas acerca de la facultad."
+            )
 
-            self.historial.append({
-                "role": "assistant",
-                "content": respuesta
-            })
+            while True:
 
-            self.speaker.hablar(respuesta)
+                audio_path = audio_queue.get()
+
+                texto = self.whisper.transcribir(audio_path)
+
+                if not texto:
+
+                    print("No se detectó voz.")
+                    continue
+
+                print("\nTú:", texto)
+
+                if self.es_comando_salida(texto):
+
+                    despedida = "Hasta luego."
+
+                    print("\nIA:", despedida)
+
+                    self.speaker.hablar(despedida)
+
+                    break
+
+                if self.es_consulta_codigo(texto):
+
+                    respuesta = (
+                        "No puedo ayudar con programación o código. "
+                        "Puedo apoyarte como asistente en orientación académica y administrativa de la facultad."
+                    )
+
+                    print("\nIA:", respuesta)
+
+                    self.historial.append({
+                        "role": "user",
+                        "content": texto
+                    })
+
+                    self.historial.append({
+                        "role": "assistant",
+                        "content": respuesta
+                    })
+
+                    self.speaker.hablar(respuesta)
+                    continue
+
+                self.historial.append({
+                    "role": "user",
+                    "content": texto
+                })
+
+                contexto = self.rag.search(texto)
+
+                respuesta = self.ia.preguntar(
+                    self.historial,
+                    contexto=contexto
+                )
+
+                print("\nIA:", respuesta)
+
+                self.historial.append({
+                    "role": "assistant",
+                    "content": respuesta
+                })
+
+                self.speaker.hablar(respuesta)
+        finally:
+            try:
+                stop_event.set()
+            except:
+                pass
+
+            if self.on_finish is not None:
+                try:
+                    self.on_finish()
+                except:
+                    pass
