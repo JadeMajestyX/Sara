@@ -8,7 +8,7 @@ import re
 import numpy as np
 import threading
 
-import edge_tts
+import pyttsx3
 
 
 class Speaker:
@@ -28,6 +28,12 @@ class Speaker:
         self._detener_evento = threading.Event()
 
         pygame.mixer.init()
+
+        self.engine = pyttsx3.init()
+
+        self.engine.setProperty('rate', 170)
+
+        self.engine.setProperty('volume', 1.0)
 
     def _avisar_estado(self, hablando):
 
@@ -68,14 +74,14 @@ class Speaker:
 
         texto = self._limpiar_texto_para_voz(texto)
 
-        communicate = edge_tts.Communicate(
-            text=texto,
-            voice=self.voz
+        comando = (
+            f'echo "{texto}" | '
+            f'"C:\\tesis\\Sara\\piper\\piper.exe" '
+            f'--model "C:\\tesis\\Sara\\voices\\es_MX-claude-high.onnx" '
+            f'--output_file "{self.archivo_respuesta}"'
         )
 
-        await communicate.save(
-            self.archivo_respuesta
-        )
+        os.system(comando)
 
     def _perfil_actividad_audio(self, chunk_ms=120):
 

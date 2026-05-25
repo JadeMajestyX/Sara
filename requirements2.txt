@@ -1,0 +1,79 @@
+# =========================
+# REQUISITOS OFFLINE - SARA
+# =========================
+
+# 1. Descargar Piper TTS
+# https://github.com/rhasspy/piper/releases
+
+# Descargar (dependiendo):
+# piper_windows_amd64.zip
+
+# Extraer en(la ruta que tengas):
+# C:\tesis\Sara\piper
+
+# Debe existir(la ruta que tengas):
+# C:\tesis\Sara\piper\piper.exe
+
+
+# =========================
+# VOZ OFFLINE EN ESPAÑOL
+# =========================
+
+# Descargar voz:
+# https://huggingface.co/rhasspy/piper-voices/tree/main/es/es_MX/claude/high
+
+# Descargar estos archivos:
+# - es_MX-claude-high.onnx
+# - es_MX-claude-high.onnx.json
+
+# Crear carpeta:
+# C:\tesis\Sara\voices
+
+# Colocar archivos ahí
+
+
+# =========================
+# MODIFICACIÓN EN speaker.py
+# =========================
+
+# Reemplazar generar_audio por y tu RUTA:
+
+# async def generar_audio(self, texto):
+#
+#     texto = self._limpiar_texto_para_voz(texto)
+#
+#     comando = (
+#         f'echo "{texto}" | '
+#         f'"C:\\tesis\\Sara\\piper\\piper.exe" '
+#         f'--model "C:\\tesis\\Sara\\voices\\es_MX-claude-high.onnx" '
+#         f'--output_file "{self.archivo_respuesta}"'
+#     )
+#
+#     os.system(comando)
+
+
+# =========================
+# IMPORTANTE
+# =========================
+
+# En config.py usar:
+
+# ARCHIVO_RESPUESTA = "temp/respuesta.wav"
+
+
+# =========================
+# LINUX
+# =========================
+
+# En Linux cambiar las rutas de Windows.
+
+# Ejemplo:
+
+# ./piper/piper \
+# --model ./voices/es_MX-claude-high.onnx \
+# --output_file temp/respuesta.wav
+
+# También cambiar:
+# echo "{texto}" |
+
+# dependiendo de la terminal Linux.

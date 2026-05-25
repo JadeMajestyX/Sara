@@ -11,7 +11,7 @@ MODELO_IA = "gemma2:2b"
 WHISPER_DEVICE = "cuda"
 
 ARCHIVO_AUDIO = "temp/grabacion.wav"
-ARCHIVO_RESPUESTA = "temp/respuesta.mp3"
+ARCHIVO_RESPUESTA = "temp/respuesta.wav"
 
 AVATAR_CERRADO = "assets/avatar/cerrado.png"
 AVATAR_HABLANDO = "assets/avatar/hablando.png"
