@@ -259,6 +259,58 @@ def consultar_horarios_por_grupo(conn, grupo_id):
         return cur.fetchall()
 
 
+def consultar_horarios_por_profesor(conn, profesor_id):
+
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT
+                g.nombre,
+                m.nombre,
+                p.nombre,
+                s.nombre,
+                h.dia_semana,
+                h.hora_inicio,
+                h.hora_fin
+            FROM horarios h
+            JOIN grupos g ON h.grupo_id = g.id
+            JOIN materias m ON h.materia_id = m.id
+            JOIN profesores p ON h.profesor_id = p.id
+            JOIN salones s ON h.salon_id = s.id
+            WHERE h.profesor_id = %s
+            ORDER BY h.dia_semana, h.hora_inicio;
+            """,
+            (profesor_id,)
+        )
+        return cur.fetchall()
+
+
+def consultar_horarios_por_materia(conn, materia_id):
+
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT
+                g.nombre,
+                m.nombre,
+                p.nombre,
+                s.nombre,
+                h.dia_semana,
+                h.hora_inicio,
+                h.hora_fin
+            FROM horarios h
+            JOIN grupos g ON h.grupo_id = g.id
+            JOIN materias m ON h.materia_id = m.id
+            JOIN profesores p ON h.profesor_id = p.id
+            JOIN salones s ON h.salon_id = s.id
+            WHERE h.materia_id = %s
+            ORDER BY h.dia_semana, h.hora_inicio;
+            """,
+            (materia_id,)
+        )
+        return cur.fetchall()
+
+
 def salones_libres(conn, dia_semana, hora):
 
     with conn.cursor() as cur:
