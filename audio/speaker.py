@@ -1,7 +1,6 @@
 # audio/speaker.py
 
 import asyncio
-import pygame
 import os
 import time
 import re
@@ -9,6 +8,7 @@ import numpy as np
 import threading
 
 import edge_tts
+import pygame
 
 
 class Speaker:
@@ -26,8 +26,23 @@ class Speaker:
         self.on_start_speaking = on_start_speaking
         self.on_stop_speaking = on_stop_speaking
         self._detener_evento = threading.Event()
+        self._mixer_inicializado = False
 
-        pygame.mixer.init()
+    def _asegurar_mixer(self):
+
+        if self._mixer_inicializado:
+            return True
+
+        if os.getenv("DISABLE_AUDIO") == "1":
+            return False
+
+        try:
+            pygame.mixer.init()
+            self._mixer_inicializado = True
+            return True
+        except Exception as error:
+            print(f"Error inicializando audio: {error}")
+            return False
 
     def _avisar_estado(self, hablando):
 
@@ -44,10 +59,11 @@ class Speaker:
 
         self._detener_evento.set()
 
-        try:
-            pygame.mixer.music.stop()
-        except:
-            pass
+        if self._mixer_inicializado:
+            try:
+                pygame.mixer.music.stop()
+            except:
+                pass
 
         self._avisar_estado(False)
 
@@ -78,6 +94,9 @@ class Speaker:
         )
 
     def _perfil_actividad_audio(self, chunk_ms=120):
+
+        if not self._mixer_inicializado:
+            return [], chunk_ms
 
         try:
             sonido = pygame.mixer.Sound(self.archivo_respuesta)
@@ -130,10 +149,13 @@ class Speaker:
 
         self._detener_evento.clear()
 
+        if not self._asegurar_mixer():
+            return
         pygame.mixer.music.stop()
 
         try:
-            pygame.mixer.music.unload()
+            if self._mixer_inicializado:
+                pygame.mixer.music.unload()
         except:
             pass
 
@@ -187,7 +209,8 @@ class Speaker:
                 time.sleep(0.05)
         finally:
             try:
-                pygame.mixer.music.unload()
+                if self._mixer_inicializado:
+                    pygame.mixer.music.unload()
             except:
                 pass
 

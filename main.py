@@ -15,19 +15,26 @@ from threading import Thread
 
 def main():
 
+    print("Iniciando ventana de avatar...", flush=True)
+
     avatar = AvatarWindow(
         imagen_cerrada=AVATAR_CERRADO,
         imagen_hablando=AVATAR_HABLANDO
     )
 
+    print("Iniciando grabadora de audio...", flush=True)
+
     recorder = AudioRecorder(
         fs=FS,
         archivo_audio=ARCHIVO_AUDIO,
+        device=INPUT_DEVICE,
         chunk_ms=CHUNK_MS,
         umbral_voz=UMBRAL_VOZ,
         silencio_maximo=SILENCIO_MAXIMO,
         min_habla_ms=MIN_HABLA_MS
     )
+
+    print("Iniciando sintetizador de voz...", flush=True)
 
     speaker = Speaker(
         archivo_respuesta=ARCHIVO_RESPUESTA,
@@ -35,14 +42,20 @@ def main():
         on_stop_speaking=avatar.mostrar_cerrado
     )
 
+    print("Cargando Whisper...", flush=True)
+
     whisper_engine = WhisperEngine(
         modelo=MODELO_WHISPER,
         device=WHISPER_DEVICE
     )
 
+    print("Inicializando motor IA...", flush=True)
+
     ia_engine = OllamaEngine(
         modelo=MODELO_IA
     )
+
+    print("Inicializando RAG...", flush=True)
 
     rag_engine = RAGEngine()
 

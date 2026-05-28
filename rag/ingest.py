@@ -1,15 +1,24 @@
+import os
+
+os.environ.setdefault("CHROMA_TELEMETRY", "0")
+
 from pypdf import PdfReader
 import chromadb
 import ollama
-import os
 import sys
 from pathlib import Path
 
 CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 300
 
-client = chromadb.PersistentClient(path="./rag/chroma_db")
-collection = client.get_or_create_collection("pdf_docs")
+try:
+    client = chromadb.PersistentClient(path="./rag/chroma_db")
+    collection = client.get_or_create_collection("pdf_docs")
+except Exception as error:
+    raise SystemExit(
+        "Error al iniciar Chroma. Respaldar y borrar ./rag/chroma_db y reintentar. "
+        f"Detalle: {error}"
+    )
 
 
 def extract_text(pdf_path):

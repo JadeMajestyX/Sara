@@ -1,0 +1,28 @@
+[0;1;32m●[0m postgresql.service - PostgreSQL database server
+     Loaded: loaded (]8;;file://jademajesty/usr/lib/systemd/system/postgresql.service\/usr/lib/systemd/system/postgresql.service]8;;\; [0;1;32menabled[0m; preset: [0;1;38:5:185mdisabled[0m)
+     Active: [0;1;32mactive (running)[0m since Thu 2026-05-28 03:16:34 CST; 7s ago
+ Invocation: 6798621130ad44afb387d178b44349f0
+       Docs: ]8;;man:postgres(1)\man:postgres(1)]8;;\
+   Main PID: 2776414 (postgres)
+      Tasks: 9[0;38:5:245m (limit: 18460)[0m
+     Memory: 31.2M (peak: 33.3M)
+        CPU: 218ms
+     CGroup: /system.slice/postgresql.service
+             ├─[0;38:5:245m2776414 /usr/bin/postgres -D /var/lib/postgres/data[0m
+             ├─[0;38:5:245m2776432 "postgres: io worker 0"[0m
+             ├─[0;38:5:245m2776433 "postgres: io worker 1"[0m
+             ├─[0;38:5:245m2776434 "postgres: io worker 2"[0m
+             ├─[0;38:5:245m2776436 "postgres: checkpointer "[0m
+             ├─[0;38:5:245m2776437 "postgres: background writer "[0m
+             ├─[0;38:5:245m2776441 "postgres: walwriter "[0m
+             ├─[0;38:5:245m2776442 "postgres: autovacuum launcher "[0m
+             └─[0;38:5:245m2776443 "postgres: logical replication launcher "[0m
+
+May 28 03:16:34 jademajesty systemd[1]: Starting PostgreSQL database server...
+May 28 03:16:34 jademajesty postgres[2776414]: 2026-05-28 03:16:34.875 CST [2776414] LOG:  starting PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 16.1.1 20260430, 64-bit
+May 28 03:16:34 jademajesty postgres[2776414]: 2026-05-28 03:16:34.876 CST [2776414] LOG:  listening on IPv6 address "::1", port 5432
+May 28 03:16:34 jademajesty postgres[2776414]: 2026-05-28 03:16:34.876 CST [2776414] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+May 28 03:16:34 jademajesty postgres[2776414]: 2026-05-28 03:16:34.878 CST [2776414] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+May 28 03:16:34 jademajesty postgres[2776438]: 2026-05-28 03:16:34.887 CST [2776438] LOG:  database system was shut down at 2026-05-28 03:16:23 CST
+May 28 03:16:34 jademajesty postgres[2776414]: 2026-05-28 03:16:34.894 CST [2776414] LOG:  database system is ready to accept connections
+May 28 03:16:34 jademajesty systemd[1]: Started PostgreSQL database server.

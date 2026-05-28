@@ -1,9 +1,18 @@
+import os
+
+os.environ.setdefault("CHROMA_TELEMETRY", "0")
+
 import chromadb
 import ollama
 
-client = chromadb.PersistentClient(path="./rag/chroma_db")
-
-collection = client.get_or_create_collection("pdf_docs")
+try:
+    client = chromadb.PersistentClient(path="./rag/chroma_db")
+    collection = client.get_or_create_collection("pdf_docs")
+except Exception as error:
+    raise SystemExit(
+        "Error al iniciar Chroma. Respaldar y borrar ./rag/chroma_db y reintentar. "
+        f"Detalle: {error}"
+    )
 
 
 def embed_query(text):
