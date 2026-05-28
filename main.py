@@ -13,12 +13,60 @@ from ui.avatar_window import AvatarWindow
 
 from threading import Thread
 
+
+class NullAvatar:
+
+    def mostrar_hablando(self):
+        pass
+
+    def mostrar_cerrado(self):
+        pass
+
+    def cerrar(self):
+        pass
+
+    def ejecutar(self):
+        pass
+
+
+def crear_avatar():
+
+    if not SARA_USAR_AVATAR:
+        return NullAvatar()
+
+    try:
+        return AvatarWindow(
+            imagen_cerrada=AVATAR_CERRADO,
+            imagen_hablando=AVATAR_HABLANDO
+        )
+    except Exception as error:
+        print(f"No se pudo iniciar la ventana del avatar: {error}")
+        print("Continuando sin interfaz gráfica.")
+        return NullAvatar()
+
 def main():
 
-    avatar = AvatarWindow(
-        imagen_cerrada=AVATAR_CERRADO,
-        imagen_hablando=AVATAR_HABLANDO
-    )
+    avatar = crear_avatar()
+
+    if SARA_TEXT_MODE:
+
+        ia_engine = OllamaEngine(
+            modelo=MODELO_IA
+        )
+
+        rag_engine = RAGEngine()
+
+        assistant = VoiceAssistant(
+            recorder=None,
+            speaker=None,
+            whisper_engine=None,
+            ia_engine=ia_engine,
+            rag_engine=rag_engine,
+            on_finish=avatar.cerrar
+        )
+
+        assistant.iniciar_texto()
+        return
 
     recorder = AudioRecorder(
         fs=FS,

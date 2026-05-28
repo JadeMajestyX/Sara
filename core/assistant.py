@@ -85,6 +85,11 @@ class VoiceAssistant:
 
     def iniciar(self):
 
+        if self.recorder is None or self.speaker is None or self.whisper is None:
+            raise RuntimeError(
+                "Faltan componentes de voz. Usa iniciar_texto() para modo sin audio."
+            )
+
         try:
             print("\nAsistente iniciado.\n")
 
@@ -172,6 +177,74 @@ class VoiceAssistant:
             except:
                 pass
 
+            if self.on_finish is not None:
+                try:
+                    self.on_finish()
+                except:
+                    pass
+
+    def iniciar_texto(self):
+
+        print("\nAsistente iniciado en modo texto.\n")
+        print("Escribe tu consulta. Usa 'salir' para terminar.")
+
+        try:
+            while True:
+
+                try:
+                    texto = input("\nTú: ").strip()
+                except EOFError:
+                    texto = "salir"
+
+                if not texto:
+                    continue
+
+                if self.es_comando_salida(texto):
+
+                    despedida = "Hasta luego."
+                    print("\nIA:", despedida)
+                    break
+
+                if self.es_consulta_codigo(texto):
+
+                    respuesta = (
+                        "No puedo ayudar con programación o código. "
+                        "Puedo apoyarte como asistente en orientación académica y administrativa de la facultad."
+                    )
+
+                    print("\nIA:", respuesta)
+
+                    self.historial.append({
+                        "role": "user",
+                        "content": texto
+                    })
+
+                    self.historial.append({
+                        "role": "assistant",
+                        "content": respuesta
+                    })
+
+                    continue
+
+                self.historial.append({
+                    "role": "user",
+                    "content": texto
+                })
+
+                contexto = self.rag.search(texto)
+
+                respuesta = self.ia.preguntar(
+                    self.historial,
+                    contexto=contexto
+                )
+
+                print("\nIA:", respuesta)
+
+                self.historial.append({
+                    "role": "assistant",
+                    "content": respuesta
+                })
+        finally:
             if self.on_finish is not None:
                 try:
                     self.on_finish()

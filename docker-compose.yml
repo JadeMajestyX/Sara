@@ -1,0 +1,34 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sara-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sara-assistant
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      MODELO_IA: gemma2:2b
+      WHISPER_DEVICE: cpu
+      SARA_TEXT_MODE: "1"
+      SARA_USAR_AVATAR: "0"
+      SDL_AUDIODRIVER: dummy
+    volumes:
+      - ./docs:/app/docs
+      - ./data:/app/data
+      - ./temp:/app/temp
+      - ./rag/chroma_db:/app/rag/chroma_db
+    stdin_open: true
+    tty: true
+    command: python main.py
+
+volumes:
+  ollama_data:
